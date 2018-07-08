@@ -1,0 +1,45 @@
+#此配置文件为示例文件，请自己写一个并在启动时 -config file 加载进来
+#server配置
+server:
+  # dev prod test
+  environment: dev
+  port: 80
+session:
+  sessionId: GOSESSIONID
+log:
+  logSavePath: runtime/logs/
+#jwt配置
+jwt:
+  name: token
+  secret: zjq520
+  #单位秒
+  duration: 6000
+
+#db配置
+db:
+  type: mysql
+  database: imooc_shop
+  user: root
+  password: abciou123
+  charset: utf8
+  host: 127.0.0.1
+  port: 3306
+  maxIdleConns: 500
+  maxOpenConns: 500
+  idleTime: 600
+  slaves:
+#redis配置
+redis:
+  host: 127.0.0.1
+  port: 6379
+  database: 0
+  password:
+  idleTime: 600
+  maxActive: 5000
+  readTimeout: 3
+  writeTimeout: 3
+
+#elasticsearch配置
+elasticSearch:
+  addr: http://127.0.0.1:9200
+  healthCheckInterval: 30
