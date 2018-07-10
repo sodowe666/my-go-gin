@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"runtime"
 	"strconv"
-	"test/adapter"
 	"time"
 )
 
@@ -56,12 +55,11 @@ func main() {
 	//}
 	//fmt.Println(pkg.Bytes())
 	//fmt.Println(length)
-	//fmt.Println(l)
-	var expect = "adaptee method"
-	adaptee := adapter.NewAdaptee()
-	target := adapter.NewAdapter(adaptee)
-	res := target.Request()
-	if res == expect {
-		fmt.Printf("expect: %s, actual: %s", expect, res)
-	}
+	//fmt&.Println(l)
+	a := 6
+	fmt.Printf("%p", &a)
+	fmt.Println()
+	b := 7
+	fmt.Printf("%p", &b)
+
 }
