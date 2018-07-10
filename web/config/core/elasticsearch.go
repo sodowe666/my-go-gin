@@ -11,23 +11,26 @@ import (
 	"web/config"
 )
 
-var elasticClient *elastic.Client
-var esOnce sync.Once
+type esClient struct {
+	once   sync.Once
+	client *elastic.Client
+}
+var es esClient
 
 func init() {
 	initElastic()
 }
 
 func Elastic() *elastic.Client {
-	if elasticClient == nil {
+	if es.client  == nil {
 		initElastic()
 	}
-	return elasticClient
+	return es.client
 }
 
 func initElastic() {
-	esOnce.Do(func() {
-		if elasticClient == nil {
+	es.once.Do(func() {
+		if es.client == nil {
 			cfg := config.GetConfig()
 			elasticCfg := cfg.ElasticSearch
 			err := os.MkdirAll("./elastic", 0777)
@@ -38,7 +41,7 @@ func initElastic() {
 			if err != nil {
 				panic("elastic error.log create fail. " + string(err.Error()))
 			}
-			elasticClient, err = elastic.NewClient(
+			es.client, err = elastic.NewClient(
 				elastic.SetURL(elasticCfg.Addr),
 				elastic.SetBasicAuth(elasticCfg.User, elasticCfg.Password),
 				elastic.SetHealthcheckInterval(time.Duration(elasticCfg.HealthCheckInterval)*time.Second),
@@ -47,7 +50,7 @@ func initElastic() {
 			if err != nil {
 				panic(err.Error())
 			}
-			info, code, err := elasticClient.Ping(elasticCfg.Addr).Do(context.Background())
+			info, code, err := es.client.Ping(elasticCfg.Addr).Do(context.Background())
 			if err != nil {
 				panic("elastic Ping error")
 			}

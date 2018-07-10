@@ -10,20 +10,23 @@ import (
 func init() {
 	initRedis()
 }
+type redisClient struct {
+	once sync.Once
+	client *redis.Client
+}
 
-var redisClient *redis.Client
-var redisOnce sync.Once
+var redisC redisClient
 
 func Redis() *redis.Client {
-	if redisClient == nil {
+	if redisC.client == nil {
 		initRedis()
 	}
-	return redisClient
+	return redisC.client
 }
 
 func initRedis() {
-	redisOnce.Do(func() {
-		if redisClient == nil {
+	redisC.once.Do(func() {
+		if redisC.client == nil {
 			cfg := config.GetConfig()
 			redisCfg := cfg.Redis
 			password := redisCfg.Password
@@ -34,7 +37,7 @@ func initRedis() {
 			poolSize := redisCfg.MaxActive
 			readTimeout := redisCfg.ReadTimeout
 			writeTimeout := redisCfg.WriteTimeout
-			redisClient = redis.NewClient(&redis.Options{
+			redisC.client = redis.NewClient(&redis.Options{
 				Addr:         host + ":" + port,
 				DB:           database,
 				IdleTimeout:  time.Duration(idleTime),
@@ -44,7 +47,7 @@ func initRedis() {
 				Password:     password,
 			})
 			//defer Redis.Close()
-			_, err := redisClient.Ping().Result()
+			_, err := redisC.client.Ping().Result()
 			if err != nil {
 				panic("redis init fail. " + string(err.Error()))
 			}

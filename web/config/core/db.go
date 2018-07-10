@@ -11,24 +11,29 @@ import (
 	"web/config"
 )
 
-var db *xorm.EngineGroup
-var dbOnce sync.Once
-var oldFile *os.File
 
 func init() {
 	initDB()
 }
 
+type dbClient struct{
+	once sync.Once
+	client *xorm.EngineGroup
+}
+var db dbClient
+var oldFile *os.File
+
+//访问方法
 func DB() *xorm.EngineGroup {
-	if db == nil {
+	if db.client == nil {
 		initDB()
 	}
-	return db
+	return db.client
 }
 
 func initDB() {
-	dbOnce.Do(func() {
-		if db == nil {
+	db.once.Do(func() {
+		if db.client == nil {
 			cfg := config.GetConfig()
 			dbCfg := cfg.Db
 			dbType := dbCfg.DBType
@@ -73,15 +78,15 @@ func initDB() {
 				}
 				slaveArray = append(slaveArray, slaveDB)
 			}
-			db, err = xorm.NewEngineGroup(masterDb, slaveArray, xorm.LeastConnPolicy())
+			db.client, err = xorm.NewEngineGroup(masterDb, slaveArray, xorm.LeastConnPolicy())
 			if err != nil {
 				panic("DB cluster init fail! please check " + string(err.Error()))
 			}
 			fmt.Println("DB Start Success!")
 			//开发环境日志记录设置
 			if cfg.Server.Environment == "dev" || cfg.Server.Environment == "" {
-				db.ShowSQL(true)
-				db.Logger().SetLevel(core.LOG_DEBUG)
+				db.client.ShowSQL(true)
+				db.client.Logger().SetLevel(core.LOG_DEBUG)
 				f, err := os.Create("./sql.log")
 				if f != oldFile {
 					oldFile.Close()
@@ -90,7 +95,7 @@ func initDB() {
 				if err != nil {
 					panic(string(err.Error()))
 				}
-				db.SetLogger(xorm.NewSimpleLogger(f))
+				db.client.SetLogger(xorm.NewSimpleLogger(f))
 			}
 		}
 	})
