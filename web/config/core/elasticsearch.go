@@ -54,7 +54,7 @@ func initElastic() {
 			if err != nil {
 				panic("elastic Ping error")
 			}
-			fmt.Printf("Elasticsearch returned with code %d and version %s\n", code, info.Version.Number)
+			fmt.Printf("Elasticsearch Start Success with code %d and version %s\n", code, info.Version.Number)
 		}
 	})
 }

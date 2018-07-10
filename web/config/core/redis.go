@@ -5,13 +5,15 @@ import (
 	"sync"
 	"time"
 	"web/config"
+	"fmt"
 )
 
 func init() {
 	initRedis()
 }
+
 type redisClient struct {
-	once sync.Once
+	once   sync.Once
 	client *redis.Client
 }
 
@@ -51,6 +53,7 @@ func initRedis() {
 			if err != nil {
 				panic("redis init fail. " + string(err.Error()))
 			}
+			fmt.Println("Redis Start Success")
 		}
 	})
 }
